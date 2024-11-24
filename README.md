@@ -4,6 +4,8 @@ This project is a receipt processor for [Fetch Rewards takeout assessment](https
 
 My inclination was to try an incorporate DDD principles in the code since this was something quite important to several repos I have worked in and I have found it quite helpful.
 
+**NOTE**: This project builds upon a template I previously developed (see [danyeric123/backend-service](https://github.com/danyeric123/backend-service)). While the template provided a foundation, most of the code is newly written specifically for this project.
+
 ## Table of Contents
 
 - [Features](#features)
