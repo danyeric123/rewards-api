@@ -83,7 +83,7 @@ func TestCalculatePoints(t *testing.T) {
 				PurchaseDate: "2023-10-05",
 				PurchaseTime: "15:00",
 				Items: []Item{
-					{ShortDescription: "Item12", Price: "1.00"},
+					{ShortDescription: "Item123", Price: "1.00"},
 					{ShortDescription: "Item2", Price: "2.00"},
 				},
 				Total: "3.00",
@@ -96,7 +96,7 @@ func TestCalculatePoints(t *testing.T) {
 			name: "Points for two items with length multiple of 3",
 			receipt: Receipt{
 				Retailer:     "Retailer6",
-				PurchaseDate: "2023-10-06",
+				PurchaseDate: "2023-10-05",
 				PurchaseTime: "15:00",
 				Items: []Item{
 					{ShortDescription: "Item12", Price: "15.00"},
@@ -107,7 +107,7 @@ func TestCalculatePoints(t *testing.T) {
 			// 9 (Retailer6 = len 9) + 50 (round dollar)
 			// + 25 (multiple of 0.25) + 5 (2 items) + 6 (odd day) + 10 (time)
 			// + 5 (two item description for both items is length multiple of 3 so multiply price by 0.2 and round up)
-			expected: 106,
+			expected: 112,
 		},
 	}
 

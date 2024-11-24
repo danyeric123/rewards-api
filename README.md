@@ -1,8 +1,18 @@
-# Go Backend Template
+# Receipt Processor
 
-This is a basic template for a Go backend with PostgreSQL. It includes best practices and boilerplate code to get you started quickly.
+This project is a receipt processor that includes the endpoints `POST /receipts/process` and `GET /receipt/{id}/points`. Additionally, tests have been added to facilitate easier testing of different scenarios.
 
-To use this template repo, you will need to change all instances of `github.com/danyeric123/backend-service` to your new name `github.com/$USERNAME/$REPO_NAME` where `USERNAME` is your username and `REPO_NAME` is the new name of the repo
+My inclination was to try and incorporate DDD principles in the code since this was something quite important to several repos I have worked in and I have found it quite helpful.
+
+**NOTE**: This project builds upon a template I previously developed (see [danyeric123/backend-service](https://github.com/danyeric123/backend-service)). While the template provided a foundation, most of the code is newly written specifically for this project.
+
+
+## Table of Contents
+
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Background](#background)
 
 ## Features
 
@@ -11,22 +21,28 @@ To use this template repo, you will need to change all instances of `github.com/
 - **Structured Logging**: Uses `logrus` for structured logging.
 - **Environment Variables**: Uses environment variables for configuration.
 - **Dependency Injection**: Makes the code more testable and modular.
+- **GORM Integration**: Uses GORM for ORM, making it easier to work with the database.
 
 ## Project Structure
 
 ```markdown
-go-backend-template/
+receipt-processor/
 ├── cmd/
-│ └── main.go
+│   └── main.go
 ├── db/
-│ └── db.go
+│   ├── config.go
+│   ├── models.go
+│   ├── receipt.go
+│   └── receipt_test.go
+├── domain/
+│   ├── receipt.go
+│   └── receipt_test.go
 ├── handlers/
-│ └── handler.go
+│   └── receipt.go
 ├── Dockerfile
 ├── docker-compose.yaml
 ├── go.mod
 ├── go.sum
-├── init.sql
 ├── Makefile
 └── README.md
 ```
@@ -35,9 +51,8 @@ go-backend-template/
 
 To use this template repo, follow these steps:
 
-1. **Clone the Repository**: Clone this repository to your local machine.
-2. **Replace Module Path**: Change all instances of `github.com/danyeric123/backend-service` to your new module path `github.com/$USERNAME/$REPO_NAME` where `USERNAME` is your GitHub username and `REPO_NAME` is the new name of the repository.
-3. **Set Up Environment Variables**: Create a `.env` file in the root directory with the following variables:
+1. **Clone the Repository**: Clone this repository to your local machine.username and `REPO_NAME` is the new name of the repository.
+2. **Set Up Environment Variables**: Create a `.env` file in the root directory with the following variables:
 
    ```properties
    POSTGRES_USER=your_postgres_user
@@ -46,7 +61,7 @@ To use this template repo, follow these steps:
    POSTGRES_HOST=db
    ```
 
-4. **Build and Run**: Use the provided `Makefile` commands to build and run the application.
+3. **Build and Run**: Use the provided `Makefile` commands to build and run the application.
 
 ### Prerequisites
 
@@ -83,15 +98,14 @@ make clean
 
 1. `make help` - Show this help message
 2. `make check_env` - Check if .env file exists
-3. `make build` - Build docker containers
-4. `make run` - Run docker containers, rebuild if needed
-5. `make clean` - Stop and remove docker containers
-6. `make fmt` - Format code
-7. `make lint` - Lint code
-
-### Database Initialization
-
-The init.sql file contains SQL statements to initialize the database with some boilerplate data. This file is automatically executed when the PostgreSQL container is started.
+3. `make check_network` - Check if Docker network exists and create it if not
+4. `make build` - Build Docker containers
+5. `make run` - Run Docker containers, rebuild if needed
+6. `make clean` - Stop and remove Docker containers
+7. `make fmt` - Format code
+8. `make lint` - Lint code
+9. `make test` - Run tests
+10. `make test_package` - Run tests in a specific package
 
 ### Environment Variables
 
@@ -102,9 +116,19 @@ Set the following environment variables in your `.env` file or in your environme
 - `POSTGRES_DB`: The PostgreSQL database name
 - `POSTGRES_HOST`: The PostgreSQL host (usually db when using Docker Compose)
 
+## Background
+
+### Choice of Language
+
+I work with Golang for several projects and given `FetchRewards` uses it, I saw it as a great opportunity to practice my skills in setting up a repository from scratch.
+
 ### Explanation of Chosen Packages
 
 - **logrus**: `logrus` is used for structured logging. It provides log levels, hooks, and formatters, making it a powerful and flexible logging library compared to the standard `log` package.
-- **mux**: `mux` is a powerful URL router and dispatcher for matching incoming requests to their respective handler. Though the standard library's `http` package would suffice, `mux` adds more flexibility and features such as variables in routes, middleware support, and more.
-- **sqlx**: `sqlx` is an extension of the standard `database/sql` package. It has become a standard for working with SQL databases in Go due to its additional functionalities.
-- **pq**: `pq` is a pure Go Postgres driver for the `database/sql` package. PostgreSQL is a powerful, open-source object-relational database system, and `pq` provides reliable and efficient connectivity to PostgreSQL databases.
+- **mux**: `mux` is a powerful URL router and dispatcher for matching incoming requests to their respective handler. Though the standard library's `http` package would suffice, `mux` appears to be the standard.
+  - As I wrote it, I thought to use `fiber` or `chi` but I felt like there was too much custom features that might not be ideal within the Golang world, which values a more Unix philosophy
+- **gorm**: `gorm` is an ORM library for Go. It simplifies database interactions and allows you to think in terms of Domain-Driven Design (DDD).
+
+### Specific Choices
+
+Some specific choices have comments on assumptions or how things might be done differently with more time.
