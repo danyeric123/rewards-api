@@ -14,10 +14,13 @@ check_env: ## Check if .env file exists
 			exit 1; \
 	}
 
-build: check_env ## Build docker containers
+check_network: ## Check if docker network exists and if not, create it
+	@docker network inspect rewards_network &>/dev/null || docker network create rewards_network
+
+build: check_env check_network ## Build docker containers
 	docker compose build
 
-run: check_env ## Run docker containers, rebuild if needed
+run: check_env check_network ## Run docker containers, rebuild if needed
 	docker compose up --build
 
 clean: ## Stop and remove docker containers

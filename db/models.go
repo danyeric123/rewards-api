@@ -6,7 +6,7 @@ import (
 
 type Receipt struct {
     gorm.Model
-    ID           string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+    ID           string `gorm:"type:uuid;primaryKey"`
     Retailer     string
     PurchaseDate string
     PurchaseTime string
@@ -16,7 +16,7 @@ type Receipt struct {
 
 type Item struct {
     gorm.Model
-    ID              string  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+    ID              string  `gorm:"type:uuid;primaryKey"`
     ReceiptID       string  `gorm:"type:uuid"`
     ShortDescription string
     Price           float64
