@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strconv"
+
 	"github.com/danyeric123/rewards-api/domain"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -30,6 +32,12 @@ func (r *ReceiptDB) SaveReceipt(receipt domain.Receipt, points int) (string, err
 	receiptID := uuid.New().String()
 
 	receiptTotal, err := receipt.GetTotal()
+
+	logrus.WithFields(logrus.Fields{
+		"receiptID": receiptID,
+		"receipt":   receipt,
+		"points":    points,
+	}).Info("Saving receipt to the database")
 
 	if err != nil {
 		logrus.WithError(err).Error("Failed to get total from receipt")
@@ -80,5 +88,50 @@ func (r *ReceiptDB) SaveReceipt(receipt domain.Receipt, points int) (string, err
 // GetPoints returns the points for a receipt
 func (r *ReceiptDB) GetPoints(id string) (int, error) {
 	// Get the points for the receipt from the database
-	return 0, nil
+	var receipt Receipt
+	logrus.WithField("id", id).Info("Getting receipt from the database")
+	err := r.DB.Where("id = ?", id).First(&receipt).Error
+	if err != nil {
+		logrus.WithError(err).WithField("id", id).Error("Failed to get receipt from the database")
+		return 0, err
+	}
+
+	return receipt.Points, nil
+}
+
+
+// GetReceipt returns the receipt for a given ID
+func (r *ReceiptDB) GetReceipt(id string) (domain.Receipt, error) {
+	// Get the receipt from the database
+	var receipt Receipt
+	logrus.WithField("id", id).Info("Getting receipt from the database")
+	err := r.DB.Where("id = ?", id).First(&receipt).Error
+	if err != nil {
+		logrus.WithError(err).WithField("id", id).Error("Failed to get receipt from the database")
+		return domain.Receipt{}, err
+	}
+
+	// Get the items for the receipt from the database
+	var items []Item
+	err = r.DB.Where("receipt_id = ?", id).Find(&items).Error
+	if err != nil {
+		logrus.WithError(err).WithField("id", id).Error("Failed to get items from the database")
+		return domain.Receipt{}, err
+	}
+
+	var domainItems []domain.Item
+	for _, item := range items {
+		domainItems = append(domainItems, domain.Item{
+			ShortDescription: item.ShortDescription,
+			Price:            strconv.FormatFloat(item.Price, 'f', 2, 64),
+		})
+	}
+
+	return domain.Receipt{
+		Retailer:     receipt.Retailer,
+		PurchaseDate: receipt.PurchaseDate,
+		PurchaseTime: receipt.PurchaseTime,
+		Items:        domainItems,
+		Total:        strconv.FormatFloat(receipt.Total, 'f', 2, 64),
+	}, nil
 }

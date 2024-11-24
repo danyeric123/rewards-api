@@ -31,3 +31,10 @@ fmt: ## Format code
 
 lint: ## Lint code
 	golangci-lint run -v ./...
+
+test: ## Run tests
+	go test ./...
+
+test_package: ## Run tests in package
+	go test -v ./$(PACKAGE)
+	

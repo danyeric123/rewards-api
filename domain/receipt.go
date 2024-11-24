@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"strconv"
+	"strings"
 )
 
 type Receipt struct {
@@ -76,16 +77,53 @@ func (r *Receipt) CalculatePoints() (int, error) {
 	}
 
 	// 25 points if total is a multiple of 0.25
+	if math.Mod(receiptTotal, 0.25) == 0 {
+		points += 25
+	}
 
 	// 5 points for every two items purchased
+	points += len(r.Items) / 2 * 5 // integer division rounds down
 
 	// If the trimmed length of the item description is a multiple of 3,
 	// multiply the price by 0.2 and round up to the nearest integer.
 	// The result is the number of points earned.
+	for _, item := range r.Items {
+		trimmedLength := len(strings.TrimSpace(item.ShortDescription))
+		if trimmedLength%3 == 0 {
+			price, err := item.GetPrice()
+			if err != nil {
+				logrus.WithError(err).Error("Failed to get price from item while calculating points")
+				return 0, err
+			}
+			points += int(math.Ceil(price * 0.2))
+		}
+	}
 
 	// 6 points if the day in the purchase date is an odd number
+	// Assuming the date is in the format YYYY-MM-DD
+	date := strings.Split(r.PurchaseDate, "-")
+	day, err := strconv.Atoi(date[2])
+	if err != nil {
+		logrus.WithError(err).Error("Failed to convert day to integer")
+		return 0, err
+	}
+	if day%2 != 0 {
+		points += 6
+	}
 
 	// 10 points if the purchase time is between 2:00 PM and 4:00 PM
+	// Assuming the time is in the format HH:MM and the time is in 24-hour format
+	// and the range is inclusive not exclusive
+	time := strings.Split(r.PurchaseTime, ":")
+	hour, err := strconv.Atoi(time[0])
+	if err != nil {
+		logrus.WithError(err).Error("Failed to convert hour to integer")
+		return 0, err
+	}
+	if hour >= 14 && hour <= 16 {
+		points += 10
+	}
+
 	logrus.Info("Points calculated: ", points)
 	return points, nil
 }
