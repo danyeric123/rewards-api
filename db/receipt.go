@@ -45,6 +45,8 @@ func (r *ReceiptDB) SaveReceipt(receipt domain.Receipt, points int) (string, err
 		Points:       points,
 	}
 
+	logrus.WithField("receipt", receiptModel).Info("Saving receipt to the database")
+
 	err = r.DB.Create(&receiptModel).Error
 	if err != nil {
 		logrus.WithError(err).Error("Failed to save receipt to the database")

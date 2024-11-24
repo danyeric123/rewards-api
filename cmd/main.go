@@ -14,9 +14,14 @@ func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
 
-	db.Connect()
+	dbInstance, err := db.InitializeDB()
 
-	receiptDB := db.NewReceiptDB(db.DB)
+	if err != nil {
+		panic(err)
+	}
+
+	receiptDB := db.NewReceiptDB(dbInstance)
+	logrus.Info("Connected to the database", dbInstance)
 
 	h := handlers.NewHandler(receiptDB)
 

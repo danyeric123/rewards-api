@@ -2,17 +2,16 @@ package db
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-// Connect connects to the database
-func Connect() {
+// InitializeDB connects to the database
+func InitializeDB() (*gorm.DB, error) {
 	var err error
 	dsn := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable",
 		os.Getenv("POSTGRES_USER"),
@@ -23,6 +22,7 @@ func Connect() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to connect to the database")
+		return nil, err
 	}
 	logrus.Info("Connected to the database")
 
@@ -31,4 +31,6 @@ func Connect() {
 	db.AutoMigrate(&Receipt{})
 	db.AutoMigrate(&Item{})
 	logrus.Info("Schema migrated")
+
+	return db, nil
 }

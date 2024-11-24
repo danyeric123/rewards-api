@@ -19,11 +19,11 @@ type Receipt struct {
 
 func (r *Receipt) GetTotal() (float64, error) {
 	total, err := strconv.ParseFloat(r.Total, 64)
-    if err != nil {
-        logrus.WithError(err).Error("Failed to convert total to float64")
-				return 0, err
-    }
-		return total, nil
+	if err != nil {
+		logrus.WithError(err).Error("Failed to convert total to float64")
+		return 0, err
+	}
+	return total, nil
 }
 
 type Item struct {
@@ -34,11 +34,11 @@ type Item struct {
 
 func (i *Item) GetPrice() (float64, error) {
 	price, err := strconv.ParseFloat(i.Price, 64)
-		if err != nil {
-			logrus.WithError(err).Error("Failed to convert price to float64")
-			return 0, err
-		}
-		return price, nil
+	if err != nil {
+		logrus.WithError(err).Error("Failed to convert price to float64")
+		return 0, err
+	}
+	return price, nil
 }
 
 type ProcessResponse struct {
@@ -54,6 +54,7 @@ type GetResponse struct {
 }
 
 func (r *Receipt) CalculatePoints() (int, error) {
+	logrus.Info("Calculating points for receipt")
 	points := 0
 	// Calculate points based on rules
 
@@ -85,6 +86,6 @@ func (r *Receipt) CalculatePoints() (int, error) {
 	// 6 points if the day in the purchase date is an odd number
 
 	// 10 points if the purchase time is between 2:00 PM and 4:00 PM
-
+	logrus.Info("Points calculated: ", points)
 	return points, nil
 }
