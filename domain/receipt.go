@@ -3,6 +3,9 @@ package domain
 import (
 	"math"
 	"unicode"
+
+	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 type Receipt struct {
@@ -11,13 +14,31 @@ type Receipt struct {
 	PurchaseTime string `json:"purchaseTime"`
 	Items        []Item `json:"items"`
 	// TODO: This comes in as a string, but we want to store it as a float64
-	Total float64 `json:"total"`
+	Total string `json:"total"`
+}
+
+func (r *Receipt) GetTotal() (float64, error) {
+	total, err := strconv.ParseFloat(r.Total, 64)
+    if err != nil {
+        logrus.WithError(err).Error("Failed to convert total to float64")
+				return 0, err
+    }
+		return total, nil
 }
 
 type Item struct {
 	ShortDescription string `json:"shortDescription"`
 	// TODO: This comes in as a string, but we want to store it as a float64
-	Price float64 `json:"price"`
+	Price string `json:"price"`
+}
+
+func (i *Item) GetPrice() (float64, error) {
+	price, err := strconv.ParseFloat(i.Price, 64)
+		if err != nil {
+			logrus.WithError(err).Error("Failed to convert price to float64")
+			return 0, err
+		}
+		return price, nil
 }
 
 type ProcessResponse struct {
@@ -43,8 +64,13 @@ func (r *Receipt) CalculatePoints() (int, error) {
 		}
 	}
 
+	receiptTotal, err := r.GetTotal()
+	if err != nil {
+		return 0, err
+	}
+
 	// 50 points if total is a round dollar amount with no cents
-	if math.Mod(r.Total, 1.0) == 0 {
+	if math.Mod(receiptTotal, 1.0) == 0 {
 		points += 50
 	}
 

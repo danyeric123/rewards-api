@@ -7,6 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: Consider changing to transactions with rollbacks in case of errors
+
 type ReceiptDB struct {
 	DB *gorm.DB
 }
@@ -27,21 +29,46 @@ func (r *ReceiptDB) SaveReceipt(receipt domain.Receipt, points int) (string, err
 	// that the UUID is unique.
 	receiptID := uuid.New().String()
 
+	receiptTotal, err := receipt.GetTotal()
+
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get total from receipt")
+		return "", err
+	}
+
 	receiptModel := Receipt{
 		ID:           receiptID,
 		Retailer:     receipt.Retailer,
 		PurchaseDate: receipt.PurchaseDate,
 		PurchaseTime: receipt.PurchaseTime,
-		Total:        receipt.Total,
+		Total:        receiptTotal,
 		Points:       points,
 	}
 
-	err := r.DB.Create(&receiptModel).Error
+	err = r.DB.Create(&receiptModel).Error
 	if err != nil {
 		logrus.WithError(err).Error("Failed to save receipt to the database")
-		if err := r.DB.Rollback().Error; err != nil {
-			logrus.WithError(err).Error("Failed to rollback transaction")
+		return "", err
+	}
+	var items []Item
+	for _, item := range receipt.Items {
+		itemPrice, err := item.GetPrice()
+		if err != nil {
+			logrus.WithError(err).Error("Failed to get price from item")
+			return "", err
 		}
+		itemModel := Item{
+			ID:               uuid.New().String(),
+			ReceiptID:        receiptID,
+			ShortDescription: item.ShortDescription,
+			Price:            itemPrice,
+		}
+		items = append(items, itemModel)
+	}
+
+	err = r.DB.Create(&items).Error
+	if err != nil {
+		logrus.WithError(err).Error("Failed to save items to the database")
 		return "", err
 	}
 
