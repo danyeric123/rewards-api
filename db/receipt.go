@@ -44,7 +44,7 @@ func (r *ReceiptDB) SaveReceipt(receipt domain.Receipt, points int) (string, err
 		}
 		return "", err
 	}
-	
+
 	return receiptID, nil
 }
 

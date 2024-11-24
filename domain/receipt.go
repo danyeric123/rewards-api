@@ -52,8 +52,8 @@ func (r *Receipt) CalculatePoints() (int, error) {
 
 	// 5 points for every two items purchased
 
-	// If the trimmed length of the item description is a multiple of 3, 
-	// multiply the price by 0.2 and round up to the nearest integer. 
+	// If the trimmed length of the item description is a multiple of 3,
+	// multiply the price by 0.2 and round up to the nearest integer.
 	// The result is the number of points earned.
 
 	// 6 points if the day in the purchase date is an odd number
