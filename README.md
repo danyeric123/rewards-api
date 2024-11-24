@@ -1,6 +1,6 @@
 # Receipt Processor
 
-This project is a receipt processor for [Fetch Rewards takeout assessment](https://github.com/fetch-rewards/receipt-processor-challenge). It includes the endpoints `POST /receipts/process` and `GET /receipt/{id}/points` as mentioned in the prompt.  Additionally, tests have been added to facilitate easier testing of different scenarios.
+This project is a receipt processor for [Fetch Rewards take-home assessment](https://github.com/fetch-rewards/receipt-processor-challenge). It includes the endpoints `POST /receipts/process` and `GET /receipt/{id}/points` as mentioned in the prompt.  Additionally, tests have been added to facilitate easier testing of different scenarios.
 
 My inclination was to try an incorporate DDD principles in the code since this was something quite important to several repos I have worked in and I have found it quite helpful.
 
